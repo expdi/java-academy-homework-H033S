@@ -23,7 +23,7 @@ public class AdoptionApplication {
 }
 
 @Component
-@Profile(value = {IN_MEMORY, JPA, JDBC, JDBC_TEMPLATE})
+@Profile(value = {"!"+H2})
 class  RunApp implements CommandLineRunner{
 
 	private final AdoptionServiceImpl adoptionService;

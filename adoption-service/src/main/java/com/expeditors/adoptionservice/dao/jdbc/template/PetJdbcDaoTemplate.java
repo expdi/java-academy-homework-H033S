@@ -8,13 +8,13 @@ import com.expeditors.adoptionservice.domain.entities.PetType;
 import org.springframework.context.annotation.Profile;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +37,13 @@ public class PetJdbcDaoTemplate
         JdbcTemplate template = new JdbcTemplate(dataSource);
         return template.query(
                 PetSqlQueries.getFindAllQuery(),
-                new PetRowMapper());
+                (rSet, rNum) -> new Pet(
+                        rSet.getInt("id"),
+                        PetBreed.valueOf(rSet.getString("breed")),
+                        PetType.valueOf(rSet.getString("type")),
+                        rSet.getString("name")
+                )
+        );
     }
 
     @Override
@@ -47,7 +53,12 @@ public class PetJdbcDaoTemplate
         try{
             return template.queryForObject(
                     PetSqlQueries.getFindByIdQuery(),
-                    new PetRowMapper(),
+                    (rSet, rNum) -> new Pet(
+                            rSet.getInt("id"),
+                            PetBreed.valueOf(rSet.getString("breed")),
+                            PetType.valueOf(rSet.getString("type")),
+                            rSet.getString("name")
+                    ),
                     id
             );
         }
@@ -65,14 +76,14 @@ public class PetJdbcDaoTemplate
         template.update(
                 (conn) -> {
 
-                    PreparedStatement stmt = conn.prepareStatement(
+                    PreparedStatement pStmt = conn.prepareStatement(
                             PetSqlQueries.getInsertQuery(),
                             Statement.RETURN_GENERATED_KEYS);
 
-                    stmt.setString(1, pet.getPetName());
-                    stmt.setString(2, pet.getPetType().name());
-                    stmt.setString(3, pet.getPetType().name());
-                    return stmt;
+                    pStmt.setString(1, pet.getPetName());
+                    pStmt.setString(2, pet.getPetBreed().name());
+                    pStmt.setString(3, pet.getPetType().name());
+                    return pStmt;
                 },
                 keyHolder);
 
@@ -105,17 +116,5 @@ public class PetJdbcDaoTemplate
         JdbcTemplate template = new JdbcTemplate(dataSource);
         var rowsDeleted = template.update(PetSqlQueries.getDeleteQuery(), id);
         return rowsDeleted > 0;
-    }
-}
-
-class PetRowMapper implements RowMapper<Pet>{
-
-    @Override
-    public Pet mapRow(ResultSet rSet, int rowNum) throws SQLException {
-        return new Pet(
-                rSet.getInt("id"),
-                PetBreed.valueOf(rSet.getString("breed")),
-                PetType.valueOf(rSet.getString("type")),
-                rSet.getString("name"));
     }
 }

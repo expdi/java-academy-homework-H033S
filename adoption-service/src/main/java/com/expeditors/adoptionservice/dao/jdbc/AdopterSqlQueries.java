@@ -25,11 +25,16 @@ public class AdopterSqlQueries {
 
     public static String getUpdateQuery() {
 
-        return "";
+        return """
+            UPDATE ADOPTER SET
+                NAME = ?,
+                PHONE_NUMBER = ?
+            WHERE ID = ?
+           """;
     }
 
     public static String getDeleteQuery() {
 
-        return "";
+        return "DELETE FROM ADOPTER WHERE ID = ?";
     }
 }
