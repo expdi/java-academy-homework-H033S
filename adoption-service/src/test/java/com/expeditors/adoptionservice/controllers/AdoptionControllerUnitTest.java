@@ -17,6 +17,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -123,7 +125,9 @@ public class AdoptionControllerUnitTest {
         var request = mockMvc.perform(
                 post("/adoption")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonConverter.fromObject(mockAdoptionRequest)))
+                        .content(JsonConverter.fromObject(mockAdoptionRequest))
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN")) )
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
@@ -155,7 +159,10 @@ public class AdoptionControllerUnitTest {
 
         mockMvc.perform(post("/adoption")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonConverter.fromObject(mockAdoptionRequest)))
+                        .content(JsonConverter.fromObject(mockAdoptionRequest))
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isBadRequest());
 
     }
@@ -186,6 +193,8 @@ public class AdoptionControllerUnitTest {
                 put("/adoption/{adoptionId}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mockAdoptionRequest)
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
                 )
                 .andExpect(status().isNoContent());
     }
@@ -203,6 +212,8 @@ public class AdoptionControllerUnitTest {
                 put("/adoption/{adoptionId}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(JsonConverter.fromObject(mockAdoption))
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
                 )
                 .andExpect(status().isBadRequest());
     }
@@ -220,6 +231,8 @@ public class AdoptionControllerUnitTest {
                         put("/adoption/{adoptionId}", 1)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(JsonConverter.fromObject(mockAdoption))
+                                .with(csrf())
+                                .with(user("admin").password("admin").roles("ADMIN"))
                 )
                 .andExpect(status().isBadRequest());
     }
@@ -236,7 +249,10 @@ public class AdoptionControllerUnitTest {
         mockMvc.perform(
                 put("/adoption/{adoptionId}", 1)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(JsonConverter.fromObject(mockAdoption)))
+                        .content(JsonConverter.fromObject(mockAdoption))
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isBadRequest());
 
     }
@@ -253,7 +269,10 @@ public class AdoptionControllerUnitTest {
         mockMvc.perform(
                         put("/adoption/{adoptionId}", 1)
                                 .contentType(MediaType.APPLICATION_JSON)
-                                .content(JsonConverter.fromObject(mockAdoption)))
+                                .content(JsonConverter.fromObject(mockAdoption))
+                                .with(csrf())
+                                .with(user("admin").password("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isBadRequest());
 
     }
@@ -282,7 +301,10 @@ public class AdoptionControllerUnitTest {
         Mockito.doReturn(true)
                 .when(adoptionService).deleteEntity(1);
 
-        mockMvc.perform(delete("/adoption/{id}", 1))
+        mockMvc.perform(delete("/adoption/{id}", 1)
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isNoContent());
     }
 
@@ -293,7 +315,10 @@ public class AdoptionControllerUnitTest {
         Mockito.doReturn(null)
                 .when(adoptionService).getEntityById(1);
 
-        mockMvc.perform(delete("/adoption/{id}", 1))
+        mockMvc.perform(delete("/adoption/{id}", 1)
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isNotFound());
     }
 
@@ -307,7 +332,10 @@ public class AdoptionControllerUnitTest {
         Mockito.doReturn(false)
                 .when(adoptionService).deleteEntity(1);
 
-        mockMvc.perform(delete("/adoption/{id}", 1))
+        mockMvc.perform(delete("/adoption/{id}", 1)
+                        .with(csrf())
+                        .with(user("admin").password("admin").roles("ADMIN"))
+                )
                 .andExpect(status().isInternalServerError());
     }
 
